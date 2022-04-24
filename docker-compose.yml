@@ -1,0 +1,28 @@
+version: '2.1'
+
+services:
+  product: # 마이크로 서비스의 이름. 
+    build: microservices/product-service # Dockerfile 의 위치
+    mem_limit: 350m # 메모리 제한
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker #환경변수
+
+  recommendation:
+    build: microservices/recommendation-service
+    mem_limit: 350m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  review:
+    build: microservices/review-service
+    mem_limit: 350m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  product-composite:
+    build: microservices/product-composite-service
+    mem_limit: 350m
+    ports:
+      - "8080:8080" # 이 서비스만 도커 외부에서 접근할 수 있도록 포트 매핑
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
