@@ -21,7 +21,7 @@ import se.magnus.microservices.core.product.persistence.ProductEntity;
 @SpringBootApplication
 @ComponentScan("se.magnus")
 public class ProductServiceApplication {
-
+	static { System.setProperty("os.arch", "i686_64"); }
 	private static final Logger LOG = LoggerFactory.getLogger(ProductServiceApplication.class);
 
 	public static void main(String[] args) {
