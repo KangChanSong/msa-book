@@ -21,7 +21,7 @@ import se.magnus.microservices.core.recommendation.persistence.RecommendationEnt
 @SpringBootApplication
 @ComponentScan("se.magnus")
 public class RecommendationServiceApplication {
-	static { System.setProperty("os.arch", "i686_64"); }
+
 	private static final Logger LOG = LoggerFactory.getLogger(RecommendationServiceApplication.class);
 
 	public static void main(String[] args) {
