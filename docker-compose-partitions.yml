@@ -4,11 +4,12 @@ services:
   product:
     build: microservices/product-service
     mem_limit: 350m
+    networks:
+      - my-network
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_PARTITIONED=true
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCECOUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCEINDEX=0
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -18,11 +19,12 @@ services:
   product-p1:
     build: microservices/product-service
     mem_limit: 350m
+    networks:
+      - my-network
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_PARTITIONED=true
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCECOUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCEINDEX=1
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -32,11 +34,12 @@ services:
   recommendation:
     build: microservices/recommendation-service
     mem_limit: 350m
+    networks:
+      - my-network
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_PARTITIONED=true
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCECOUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCEINDEX=0
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -46,11 +49,12 @@ services:
   recommendation-p1:
     build: microservices/recommendation-service
     mem_limit: 350m
+    networks:
+      - my-network
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_PARTITIONED=true
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCECOUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCEINDEX=1
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -60,11 +64,12 @@ services:
   review:
     build: microservices/review-service
     mem_limit: 350m
+    networks:
+      - my-network
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_PARTITIONED=true
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCECOUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCEINDEX=0
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mysql:
         condition: service_healthy
@@ -74,11 +79,12 @@ services:
   review-p1:
     build: microservices/review-service
     mem_limit: 350m
+    networks:
+      - my-network
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_PARTITIONED=true
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCECOUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_INPUT_CONSUMER_INSTANCEINDEX=1
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       mysql:
         condition: service_healthy
@@ -88,14 +94,12 @@ services:
   product-composite:
     build: microservices/product-composite-service
     mem_limit: 350m
+    networks:
+      - my-network
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CLOUD_STREAM_BINDINGS_OUTPUT-PRODUCTS_PRODUCER_PARTITION-KEY-EXPRESSION=payload.key
-      - SPRING_CLOUD_STREAM_BINDINGS_OUTPUT-PRODUCTS_PRODUCER_PARTITION-COUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_OUTPUT-RECOMMENDATIONS_PRODUCER_PARTITION-KEY-EXPRESSION=payload.key
-      - SPRING_CLOUD_STREAM_BINDINGS_OUTPUT-RECOMMENDATIONS_PRODUCER_PARTITION-COUNT=2
-      - SPRING_CLOUD_STREAM_BINDINGS_OUTPUT-REVIEWS_PRODUCER_PARTITION-KEY-EXPRESSION=payload.key
-      - SPRING_CLOUD_STREAM_BINDINGS_OUTPUT-REVIEWS_PRODUCER_PARTITION-COUNT=2
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -103,19 +107,54 @@ services:
   eureka:
     build: spring-cloud/eureka-server
     mem_limit: 350m
-
-  gateway:
+    networks:
+      - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+
+  gateway:
     build: spring-cloud/gateway
     mem_limit: 350m
+    networks:
+      - my-network
     ports:
-      - "8080:8080"
+      - "8443:8443"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+
+  auth-server:
+    build: spring-cloud/authorization-server
+    mem_limit: 350m
+    networks:
+      - my-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+
+  config-server:
+    build: spring-cloud/config-server
+    mem_limit: 350m
+    networks:
+      - my-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,native
+      - ENCRYPT_KEY=${CONFIG_SERVER_ENCRYPT_KEY}
+      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
+      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
 
   # $ mongo
   mongodb:
     image: mongo:3.6.9
     mem_limit: 350m
+    networks:
+      - my-network
     ports:
       - "27017:27017"
     command: mongod --smallfiles
@@ -129,6 +168,8 @@ services:
   mysql:
     image: mysql:5.7
     mem_limit: 350m
+    networks:
+      - my-network
     ports:
       - "3306:3306"
     environment:
@@ -145,6 +186,8 @@ services:
   rabbitmq:
     image: rabbitmq:3.7.8-management
     mem_limit: 350m
+    networks:
+      - my-network
     ports:
       - 5672:5672
       - 15672:15672
@@ -153,3 +196,7 @@ services:
       interval: 20s
       timeout: 5s
       retries: 10
+
+networks:
+  my-network:
+    name: my-network
